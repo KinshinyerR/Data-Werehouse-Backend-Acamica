@@ -1,4 +1,6 @@
 const express = require("express");
+let multer = require("multer");
+let upload = multer({ dest: "upload/" });
 
 const auth = require("../middlewares/auth");
 const validate = require("../middlewares/validate");
@@ -21,7 +23,7 @@ router.get(
 /*REGISTER A CONTACT*/
 router.post(
   "/register",
-  validate(contactValidate.register),
+  // validate(contactValidate.register),
   auth,
   contactService.register
 );
@@ -41,5 +43,7 @@ router.delete(
   auth,
   contactService.remove
 );
+
+router.post("/upload", contactService.uploadFile);
 
 module.exports = router;

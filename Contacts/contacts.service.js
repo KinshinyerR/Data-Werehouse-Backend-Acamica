@@ -1,10 +1,12 @@
 const Contact = require("./contacts.model");
 const Company = require("../Companies/companies.model");
 const Region = require("../Regions/regions.model");
+const upload = require("../middlewares/upload");
 
 /* GET ALL CONTACTS */
 function all(req, res) {
   Contact.find()
+    .populate("companyId")
     .then((contacts) => {
       res.send(contacts);
     })
@@ -17,7 +19,9 @@ function all(req, res) {
 async function byEmail(req, res) {
   const { email } = req.body;
   try {
-    const contactDB = await Contact.findOne({ email: email });
+    const contactDB = await Contact.findOne({ email: email }).populate(
+      "companyId"
+    );
     if (!contactDB) {
       throw new Error(`El email ${email} NO se encuentra registrado`);
     }
@@ -29,13 +33,7 @@ async function byEmail(req, res) {
 }
 /*REGISTER A CONTACT*/
 async function register(req, res) {
-  const {
-    email,
-    region,
-    country,
-    city,
-    company: { name },
-  } = req.body;
+  const { email, region, country, city, companyId } = req.body;
   let cityCheck = false;
   let regionExists = false;
   let countryExists = false;
@@ -50,50 +48,52 @@ async function register(req, res) {
 
     const regionDB = await Region.find();
 
-    for (let i = 0; i < regionDB.length; i++) {
-      if (regionDB[i].regionName === region) {
-        regionExists = true;
-        const element = regionDB[i].countryList;
-        for (let j = 0; j < element.length; j++) {
-          if (element[j].countryName === country) {
-            countryExists = true;
-            const clist = element[j].cityList;
-            for (let k = 0; k < clist.length; k++) {
-              const cityname = clist[k].cityName;
-              if (cityname === city) {
-                cityCheck = true;
-              }
-            }
-          }
-        }
-      }
-    }
+    console.log(regionDB);
 
-    if (!regionExists) {
-      throw new Error(`La región ${region} no se encuentra registrada`);
-    } else if (regionExists && !countryExists) {
-      throw new Error(
-        `El país ${country} no se encuentra registrado en la region ${region}`
-      );
-    } else if (regionExists && countryExists && !cityCheck) {
-      throw new Error(
-        `La ciudad ${city} no se encuentra registrada en el país ${country}`
-      );
-    }
+    // for (let i = 0; i < regionDB.length; i++) {
+    //   if (regionDB[i].regionName === region) {
+    //     regionExists = true;
+    //     const element = regionDB[i].countryList;
+    //     for (let j = 0; j < element.length; j++) {
+    //       if (element[j].countryName === country) {
+    //         countryExists = true;
+    //         const clist = element[j].cityList;
+    //         for (let k = 0; k < clist.length; k++) {
+    //           const cityname = clist[k].cityName;
+    //           if (cityname === city) {
+    //             cityCheck = true;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
-    const companyDB = await Company.findOne({ name });
+    // if (!regionExists) {
+    //   throw new Error(`La región ${region} no se encuentra registrada`);
+    // } else if (regionExists && !countryExists) {
+    //   throw new Error(
+    //     `El país ${country} no se encuentra registrado en la region ${region}`
+    //   );
+    // } else if (regionExists && countryExists && !cityCheck) {
+    //   throw new Error(
+    //     `La ciudad ${city} no se encuentra registrada en el país ${country}`
+    //   );
+    // }
+
+    const companyDB = await Company.findById(companyId);
     if (!companyDB) {
-      throw new Error(`La compañia ${name} no se encuentra registrada`);
+      throw new Error(`La compañia no se encuentra registrada`);
     }
 
     const newContact = new Contact(req.body);
-    newContact.company.name = companyDB.name;
-    newContact.company.address = companyDB.address;
-    newContact.company.email = companyDB.email;
-    newContact.company.phone = companyDB.phone;
-    newContact.company.city = companyDB.city;
-    newContact.company.country = companyDB.country;
-    newContact.company.region = companyDB.region;
+    // newContact.company.name = companyDB.name;
+    // newContact.company.address = companyDB.address;
+    // newContact.company.email = companyDB.email;
+    // newContact.company.phone = companyDB.phone;
+    // newContact.company.city = companyDB.city;
+    // newContact.company.country = companyDB.country;
+    // newContact.company.region = companyDB.region;
 
     await newContact.save();
     res.status(200).send(newContact);
@@ -195,4 +195,20 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { all, byEmail, register, update, remove };
+const uploadFile = async (req, res) => {
+  try {
+    await upload(req, res);
+
+    console.log(req.file);
+    if (req.file == undefined) {
+      return res.send(`You must select a file.`);
+    }
+
+    return res.send(`File has been uploaded.`);
+  } catch (error) {
+    console.log(error);
+    return res.send(`Error when trying upload image: ${error}`);
+  }
+};
+
+module.exports = { all, byEmail, register, update, remove, uploadFile };
