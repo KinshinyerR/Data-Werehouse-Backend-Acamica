@@ -33,7 +33,7 @@ async function byEmail(req, res) {
 }
 /*REGISTER A CONTACT*/
 async function register(req, res) {
-  const { email, region, country, city, companyId } = req.body;
+  const { email, regionId, countryId, cityId, companyId } = req.body;
   let cityCheck = false;
   let regionExists = false;
   let countryExists = false;
@@ -46,9 +46,17 @@ async function register(req, res) {
       );
     }
 
-    const regionDB = await Region.find();
+    const regionDB = await Region.findById(regionId);
+
+    const countryDB = await regionDB.countryList.find(
+      (country) => country.id == countryId
+    );
+
+    const cityDB = await countryDB.cityList.find((city) => city.id == cityId);
 
     console.log(regionDB);
+    console.log(countryDB);
+    console.log(cityDB);
 
     // for (let i = 0; i < regionDB.length; i++) {
     //   if (regionDB[i].regionName === region) {
@@ -69,17 +77,13 @@ async function register(req, res) {
     //   }
     // }
 
-    // if (!regionExists) {
-    //   throw new Error(`La región ${region} no se encuentra registrada`);
-    // } else if (regionExists && !countryExists) {
-    //   throw new Error(
-    //     `El país ${country} no se encuentra registrado en la region ${region}`
-    //   );
-    // } else if (regionExists && countryExists && !cityCheck) {
-    //   throw new Error(
-    //     `La ciudad ${city} no se encuentra registrada en el país ${country}`
-    //   );
-    // }
+    if (!regionDB) {
+      throw new Error(`La región no se encuentra registrada`);
+    } else if (regionDB && !countryDB) {
+      throw new Error(`El país no se encuentra registrado`);
+    } else if (regionDB && countryDB && !cityDB) {
+      throw new Error(`La ciudad no se encuentra registrada`);
+    }
 
     const companyDB = await Company.findById(companyId);
     if (!companyDB) {
@@ -87,13 +91,6 @@ async function register(req, res) {
     }
 
     const newContact = new Contact(req.body);
-    // newContact.company.name = companyDB.name;
-    // newContact.company.address = companyDB.address;
-    // newContact.company.email = companyDB.email;
-    // newContact.company.phone = companyDB.phone;
-    // newContact.company.city = companyDB.city;
-    // newContact.company.country = companyDB.country;
-    // newContact.company.region = companyDB.region;
 
     await newContact.save();
     res.status(200).send(newContact);
