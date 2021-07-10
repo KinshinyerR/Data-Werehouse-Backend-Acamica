@@ -10,7 +10,7 @@ const contactService = require("./contacts.service");
 const router = express.Router();
 
 /* GET ALL CONTACTS */
-router.get("/all", auth, contactService.all);
+router.get("/all"/*, auth*/, contactService.all);
 
 /* GET A CONTACTS BY EMAIL */
 router.get(

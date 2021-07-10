@@ -1,12 +1,14 @@
-const Region = require("./regions.model");
+const Region = require("./region.model");
+const Country = require("./country.model");
+const City = require("./city.model");
 
 /* REGISTER A REGION */
 async function addRegion(req, res) {
-  const { regionName } = req.body;
+  const { name } = req.body;
   try {
-    const regionDB = await Region.findOne({ regionName });
+    const regionDB = await Region.findOne({ name });
     if (regionDB) {
-      throw new Error(`La region ${regionName} ya se encuentra registrada`);
+      throw new Error(`La region ${name} ya se encuentra registrada`);
     }
     const newRegion = new Region(req.body);
     await newRegion.save();
@@ -19,26 +21,28 @@ async function addRegion(req, res) {
 
 /* REGISTER A CONTRY IN THE REGION */
 async function addCountry(req, res) {
-  const {
-    regionName,
-    countryList: [{ countryName }],
-  } = req.body;
+  const { regionId, name } = req.body;
   try {
-    const regionDB = await Region.findOne({ regionName });
+    const regionDB = await Region.findById(regionId);
     if (!regionDB) {
-      throw new Error(`La region ${regionName} no se encuentra registrada`);
+      throw new Error(`La region no se encuentra registrada`);
     }
 
-    for (let i = 0; i < regionDB.countryList.length; i++) {
-      if (regionDB.countryList[i].countryName === countryName) {
-        throw new Error(`El país ${countryName} ya se encuentra registrado`);
-      }
+    const countryDB = await Country.findOne({ name });
+    if (countryDB) {
+      throw new Error(`El país ya se encuentra registrado`);
     }
-    regionDB.countryList.push({
-      countryName: countryName,
-    });
-    await regionDB.save();
-    res.status(200).send(regionDB);
+
+    const newCountry = new Country(req.body);
+
+    await newCountry.save();
+
+    await regionDB.update(
+      { $push: { countries: newCountry._id } },
+      { new: true, useFindAndModify: false }
+    );
+
+    res.status(200).send(newCountry);
   } catch (error) {
     console.log({ error });
     res.status(400).send(error.message);
@@ -47,38 +51,33 @@ async function addCountry(req, res) {
 
 /* REGISTER A CITY IN THE COUNTRY */
 async function addCity(req, res) {
-  const {
-    regionName,
-    countryList: [{ countryName, cityList }],
-  } = req.body;
+  const { countryId, name } = req.body;
   try {
-    const regionDB = await Region.findOne({ regionName });
-    if (!regionDB) {
-      throw new Error(`La region ${regionName} no se encuentra registrada`);
+    // const regionDB = await Region.findById(regionId);
+    // if (!regionDB) {
+    //   throw new Error(`La region no se encuentra registrada`);
+    // }
+
+    const countryDB = await Country.findById(countryId);
+    if (!countryDB) {
+      throw new Error(`El país no se encuentra registrado`);
     }
 
-    const existsCountry = await regionDB.countryList.findIndex(
-      (country) => country.countryName === countryName
+    const cityDB = await Country.findOne({ name });
+    if (cityDB) {
+      throw new Error(`La ciudad ya se encuentra registrada`);
+    }
+
+    const newCity = new City(req.body);
+
+    await newCity.save();
+
+    await countryDB.update(
+      { $push: { cities: newCity._id } },
+      { new: true, useFindAndModify: false }
     );
 
-    if (existsCountry < 0) {
-      throw new Error(`El pais ${countryName} no se encuentra registrado`);
-    }
-
-    const existsCity = await regionDB.countryList[
-      existsCountry
-    ].cityList.findIndex((city) => city.cityName == cityList[0].cityName);
-
-    if (existsCity >= 0) {
-      throw new Error(
-        `La Ciudad ${cityList[0].cityName} ya se encuentra registrada`
-      );
-    }
-
-    regionDB.countryList[existsCountry].cityList.push(cityList[0]);
-
-    await regionDB.save();
-    res.status(200).send(regionDB);
+    res.status(200).send(newCity);
   } catch (error) {
     console.log({ error });
     res.status(400).send(error.message);
@@ -88,6 +87,7 @@ async function addCity(req, res) {
 /* GET ALL REGIONS */
 function all(req, res) {
   Region.find()
+    .populate({ path: "countries", populate: { path: "cities" } })
     .then((regions) => {
       res.send(regions);
     })

@@ -1,5 +1,5 @@
 const Company = require("./companies.model");
-const Region = require("../Regions/regions.model");
+const Region = require("../Regions/region.model");
 
 /* GET ALL COMPANIES */
 function all(req, res) {

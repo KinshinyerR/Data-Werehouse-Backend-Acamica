@@ -1,12 +1,15 @@
 const Contact = require("./contacts.model");
 const Company = require("../Companies/companies.model");
-const Region = require("../Regions/regions.model");
+const Region = require("../Regions/region.model");
 const upload = require("../middlewares/upload");
 
 /* GET ALL CONTACTS */
 function all(req, res) {
   Contact.find()
     .populate("companyId")
+    .populate({path: "regionId", select: "regionName"})
+    .populate({path: "countryList", select: "countryName"})
+    .populate({path: "cityList", select: "cityName"})
     .then((contacts) => {
       res.send(contacts);
     })
