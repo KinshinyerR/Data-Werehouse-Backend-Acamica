@@ -7,8 +7,17 @@ const regionService = require("./regions.service");
 
 const router = express.Router();
 
+/* GET ALL REGIONS/COUNTRIES/CITIES */
+router.get("/all", auth, regionService.all);
+
 /* GET ALL REGIONS */
-router.get("/allRegions", auth, regionService.all);
+router.get("/allRegions", auth, regionService.allRegions);
+
+/* GET ALL COUNTRIES */
+router.get("/allCountries", auth, regionService.allCountries);
+
+/* GET ALL CITIES */
+router.get("/allCities", auth, regionService.allCities);
 
 /* REGISTER A REGION */
 router.post(
@@ -59,27 +68,12 @@ router.put(
 );
 
 /* DELETE A REGION */
-router.delete(
-  "/deleteRegion",
-  auth,
-  validate(regionValidate.deleteRegion),
-  regionService.deleteRegion
-);
+router.delete("/deleteRegion", auth, regionService.deleteRegion);
 
 /* DELETE A COUNTRY IN THE REGION */
-router.delete(
-  "/deleteCountry",
-  auth,
-  validate(regionValidate.deleteCountry),
-  regionService.deleteCountry
-);
+router.delete("/deleteCountry", auth, regionService.deleteCountry);
 
 /* DELETE A CITY IN THE COUNTRY */
-router.delete(
-  "/deleteCity",
-  auth,
-  validate(regionValidate.deleteCity),
-  regionService.deleteCity
-);
+router.delete("/deleteCity", auth, regionService.deleteCity);
 
 module.exports = router;
