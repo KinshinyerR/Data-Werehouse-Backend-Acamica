@@ -6,9 +6,7 @@ const companiesSchema = new Schema({
   address: { type: String },
   email: { type: String, require: true },
   phone: { type: Number },
-  city: { type: String },
-  country: { type: String },
-  region: { type: String },
+  cityId: { type: Schema.ObjectId, ref: "city", required: true },
 });
 
 module.exports = mongoose.model("companies", companiesSchema);

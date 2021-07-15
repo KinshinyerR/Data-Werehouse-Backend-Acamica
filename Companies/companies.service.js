@@ -1,9 +1,10 @@
 const Company = require("./companies.model");
-const Region = require("../Regions/region.model");
+const City = require("../Regions/city.model");
 
 /* GET ALL COMPANIES */
 function all(req, res) {
   Company.find()
+    .populate("cityId")
     .then((companies) => {
       res.send(companies);
     })
@@ -17,7 +18,9 @@ function all(req, res) {
 async function byEmail(req, res) {
   const { email } = req.body;
   try {
-    const companyDB = await Company.findOne({ email: email });
+    const companyDB = await Company.findOne({ email: email }).populate(
+      "cityId"
+    );
     if (!companyDB) {
       throw new Error(`El email ${email} NO se encuentra registrado`);
     }
@@ -30,43 +33,22 @@ async function byEmail(req, res) {
 
 /*REGISTER A COMPANY*/
 async function register(req, res) {
-  const { email, city } = req.body;
-  let find = false;
-  let regioname;
-  let countryname;
-  let cityname;
+  const { email, cityId } = req.body;
   try {
-    const companyDB = await Company.findOne({ email: email });
+    const companyDB = await Company.findOne({ email });
     if (companyDB) {
       throw new Error(
-        `La Compañia con email ${email} ya se encuentra registrado`
+        `La Compañia con email ${email} ya se encuentra registrada`
       );
     }
 
-    const regionDB = await Region.find();
+    const cityDB = await City.findById(cityId);
 
-    for (let i = 0; i < regionDB.length; i++) {
-      const element = regionDB[i].countryList;
-      for (let j = 0; j < element.length; j++) {
-        const clist = element[j].cityList;
-        for (let k = 0; k < clist.length; k++) {
-          cityname = clist[k].cityName;
-          if (cityname === city) {
-            regioname = regionDB[i].regionName;
-            countryname = element[j].countryName;
-            find = true;
-          }
-        }
-      }
-    }
-
-    if (!find) {
-      throw new Error(`La ciudad ${city} no se encuentra registrada`);
+    if (!cityDB) {
+      throw new Error(`La ciudad no se encuentra registrada`);
     }
     const newCompany = new Company(req.body);
-    newCompany.city = city;
-    newCompany.country = countryname;
-    newCompany.region = regioname;
+
     await newCompany.save();
     res.status(200).send(newCompany);
   } catch (error) {

@@ -17,7 +17,6 @@ const companyValidate = {
       .isNumeric()
       .trim()
       .withMessage("Teléfono invalido"),
-    body("city").exists().isString().trim().withMessage("Ciudad invalido"),
   ],
   update: [
     body("email").exists().isEmail().trim().withMessage("Email invalido"),
