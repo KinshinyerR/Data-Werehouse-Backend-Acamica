@@ -1,15 +1,17 @@
 const Contact = require("./contacts.model");
 const Company = require("../Companies/companies.model");
 const Region = require("../Regions/region.model");
+const Country = require("../Regions/country.model");
+const City = require("../Regions/city.model");
 const upload = require("../middlewares/upload");
 
 /* GET ALL CONTACTS */
 function all(req, res) {
   Contact.find()
     .populate("companyId")
-    .populate({path: "regionId", select: "regionName"})
-    .populate({path: "countryList", select: "countryName"})
-    .populate({path: "cityList", select: "cityName"})
+    // .populate({ path: "companyId", select: "name" })     /**POPULATE A COMPANY, REGION, COUNTRY Y CITY */
+    // .populate({path: "countryId", select: "name"})
+    // .populate({ path: "cityId", select: "name" })
     .then((contacts) => {
       res.send(contacts);
     })
@@ -22,9 +24,10 @@ function all(req, res) {
 async function byEmail(req, res) {
   const { email } = req.body;
   try {
-    const contactDB = await Contact.findOne({ email: email }).populate(
-      "companyId"
-    );
+    const contactDB = await Contact.findOne({ email: email }).populate({
+      path: "companyId",
+      select: "name",
+    }); /* POPULATE A COMPANY, REGION, COUNTRY Y CITY */
     if (!contactDB) {
       throw new Error(`El email ${email} NO se encuentra registrado`);
     }
@@ -37,9 +40,6 @@ async function byEmail(req, res) {
 /*REGISTER A CONTACT*/
 async function register(req, res) {
   const { email, regionId, countryId, cityId, companyId } = req.body;
-  let cityCheck = false;
-  let regionExists = false;
-  let countryExists = false;
 
   try {
     const contactDB = await Contact.findOne({ email });
@@ -51,34 +51,9 @@ async function register(req, res) {
 
     const regionDB = await Region.findById(regionId);
 
-    const countryDB = await regionDB.countryList.find(
-      (country) => country.id == countryId
-    );
+    const countryDB = await Country.findById(countryId);
 
-    const cityDB = await countryDB.cityList.find((city) => city.id == cityId);
-
-    console.log(regionDB);
-    console.log(countryDB);
-    console.log(cityDB);
-
-    // for (let i = 0; i < regionDB.length; i++) {
-    //   if (regionDB[i].regionName === region) {
-    //     regionExists = true;
-    //     const element = regionDB[i].countryList;
-    //     for (let j = 0; j < element.length; j++) {
-    //       if (element[j].countryName === country) {
-    //         countryExists = true;
-    //         const clist = element[j].cityList;
-    //         for (let k = 0; k < clist.length; k++) {
-    //           const cityname = clist[k].cityName;
-    //           if (cityname === city) {
-    //             cityCheck = true;
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    const cityDB = await City.findById(cityId);
 
     if (!regionDB) {
       throw new Error(`La región no se encuentra registrada`);
@@ -86,6 +61,18 @@ async function register(req, res) {
       throw new Error(`El país no se encuentra registrado`);
     } else if (regionDB && countryDB && !cityDB) {
       throw new Error(`La ciudad no se encuentra registrada`);
+    }
+
+    const country = await regionDB.countries.includes(countryId);
+
+    if (!country) {
+      throw new Error(`Region o País incorrecto`);
+    }
+    
+    const cities = await countryDB.cities.includes(cityId);
+
+    if (!cities) {
+      throw new Error(`País o Ciudad incorrecta`);
     }
 
     const companyDB = await Company.findById(companyId);
@@ -104,16 +91,7 @@ async function register(req, res) {
 }
 /* UPDATE A CONTACT BY EMAIL */
 async function update(req, res) {
-  const {
-    email,
-    region,
-    country,
-    city,
-    company: { name },
-  } = req.body;
-  let cityCheck = false;
-  let regionExists = false;
-  let countryExists = false;
+  const { email, regionId, countryId, cityId, companyId } = req.body;
 
   try {
     const contactDB = await Contact.findOne({ email });
@@ -123,52 +101,38 @@ async function update(req, res) {
       );
     }
 
-    const regionDB = await Region.find();
-
-    for (let i = 0; i < regionDB.length; i++) {
-      if (regionDB[i].regionName === region) {
-        regionExists = true;
-        const element = regionDB[i].countryList;
-        for (let j = 0; j < element.length; j++) {
-          if (element[j].countryName === country) {
-            countryExists = true;
-            const clist = element[j].cityList;
-            for (let k = 0; k < clist.length; k++) {
-              const cityname = clist[k].cityName;
-              if (cityname === city) {
-                cityCheck = true;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if (!regionExists) {
-      throw new Error(`La región ${region} no se encuentra registrada`);
-    } else if (regionExists && !countryExists) {
-      throw new Error(
-        `El país ${country} no se encuentra registrado en la region ${region}`
-      );
-    } else if (regionExists && countryExists && !cityCheck) {
-      throw new Error(
-        `La ciudad ${city} no se encuentra registrada en el país ${country}`
-      );
-    }
-
-    const companyDB = await Company.findOne({ name });
+    const companyDB = await Company.findById(companyId);
     if (!companyDB) {
-      throw new Error(`La compañia ${name} no se encuentra registrada`);
+      throw new Error(`La compañia no se encuentra registrada`);
+    }
+
+    const regionDB = await Region.findById(regionId);
+
+    const countryDB = await Country.findById(countryId);
+
+    const cityDB = await City.findById(cityId);
+
+    if (!regionDB) {
+      throw new Error(`La región no se encuentra registrada`);
+    } else if (regionDB && !countryDB) {
+      throw new Error(`El país no se encuentra registrado`);
+    } else if (regionDB && countryDB && !cityDB) {
+      throw new Error(`La ciudad no se encuentra registrada`);
+    }
+
+    const country = await regionDB.countries.includes(countryId);
+
+    if (!country) {
+      throw new Error(`Region o País incorrecto`);
+    }
+    
+    const cities = await countryDB.cities.includes(cityId);
+
+    if (!cities) {
+      throw new Error(`País o Ciudad incorrecta`);
     }
 
     Object.assign(contactDB, req.body);
-    contactDB.company.name = companyDB.name;
-    contactDB.company.address = companyDB.address;
-    contactDB.company.email = companyDB.email;
-    contactDB.company.phone = companyDB.phone;
-    contactDB.company.city = companyDB.city;
-    contactDB.company.country = companyDB.country;
-    contactDB.company.region = companyDB.region;
 
     await contactDB.save();
     res.status(200).send(contactDB);
