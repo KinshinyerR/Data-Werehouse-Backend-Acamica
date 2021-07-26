@@ -19,6 +19,9 @@ app.use("/users", usersController);
 app.use("/regions", regionsController);
 app.use("/companies", companiesController);
 app.use("/contacts", contactController);
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 mongoose
   .connect(process.env.MONGODB, {
