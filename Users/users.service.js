@@ -26,7 +26,7 @@ function login(req, res) {
   User.findOne({ email: email })
     .then(async (user) => {
       if (!user || !(await bcrypt.compare(password, user.password))) {
-        throw new Error("Usuario y/o Contraseña incorrecta");
+        throw new Error();
       }
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: "1d",
