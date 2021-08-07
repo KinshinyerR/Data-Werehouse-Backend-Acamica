@@ -9,9 +9,7 @@ const upload = require("../middlewares/upload");
 function all(req, res) {
   Contact.find()
     .populate("companyId")
-    // .populate({ path: "companyId", select: "name" })     /**POPULATE A COMPANY, REGION, COUNTRY Y CITY */
-    // .populate({path: "countryId", select: "name"})
-    // .populate({ path: "cityId", select: "name" })
+    .populate({ path: "regionId", select: "name" })
     .then((contacts) => {
       res.send(contacts);
     })
@@ -68,7 +66,7 @@ async function register(req, res) {
     if (!country) {
       throw new Error(`Region o País incorrecto`);
     }
-    
+
     const cities = await countryDB.cities.includes(cityId);
 
     if (!cities) {
@@ -125,7 +123,7 @@ async function update(req, res) {
     if (!country) {
       throw new Error(`Region o País incorrecto`);
     }
-    
+
     const cities = await countryDB.cities.includes(cityId);
 
     if (!cities) {
