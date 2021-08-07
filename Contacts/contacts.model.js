@@ -8,7 +8,7 @@ const contactsSchema = new Schema({
   email: { type: String, require: true },
   companyId: { type: Schema.ObjectId, ref: "companies" },
   regionId: { type: Schema.ObjectId, ref: "region" },
-  countryId: { type: Schema.ObjectId, ref: "countries" },
+  countryId: { type: Schema.ObjectId, ref: "country" },
   cityId: { type: Schema.ObjectId, ref: "cities" },
   address: { type: String },
   interest: { type: Number },

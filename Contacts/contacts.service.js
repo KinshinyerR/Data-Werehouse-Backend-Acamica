@@ -9,7 +9,7 @@ const upload = require("../middlewares/upload");
 function all(req, res) {
   Contact.find()
     .populate("companyId")
-    .populate({ path: "regionId", select: "name" })
+    .populate({ path: "countryId", select: "name" })
     .then((contacts) => {
       res.send(contacts);
     })
