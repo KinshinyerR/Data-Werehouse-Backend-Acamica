@@ -85,7 +85,7 @@ function remove(req, res) {
     })
     .then((comapnyDeleted) => {
       res.status(200);
-      res.send(`${comapnyDeleted} Usuario eliminado con exito`);
+      res.send(`Compañia eliminada con exito`);
     })
     .catch((error) => {
       console.log({ error });
