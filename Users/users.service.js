@@ -91,7 +91,7 @@ function remove(req, res) {
     })
     .then((userDeleted) => {
       res.status(200);
-      res.send(`${userDeleted} Usuario eliminado con exito`);
+      res.send(`Usuario eliminado con exito`);
     })
     .catch((error) => {
       console.log({ error });
