@@ -8,15 +8,15 @@ const upload = require("../middlewares/upload");
 /* GET ALL CONTACTS */
 function all(req, res) {
   const { search } = req.query;
-  console.log(req.query);
+  const regex = new RegExp(search, "i");
   Contact.find(
     search
       ? {
           $or: [
-            { name: search },
-            { surname: search },
-            { position: search },
-            { email: search },
+            { name: { $regex: regex } },
+            { surname: { $regex: regex } },
+            { position: { $regex: regex } },
+            { email: { $regex: regex } },
           ],
         }
       : {}
