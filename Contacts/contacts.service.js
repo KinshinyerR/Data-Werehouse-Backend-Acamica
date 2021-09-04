@@ -7,7 +7,20 @@ const upload = require("../middlewares/upload");
 
 /* GET ALL CONTACTS */
 function all(req, res) {
-  Contact.find()
+  const { search } = req.query;
+  console.log(req.query);
+  Contact.find(
+    search
+      ? {
+          $or: [
+            { name: search },
+            { surname: search },
+            { position: search },
+            { email: search },
+          ],
+        }
+      : {}
+  )
     .populate("companyId")
     .populate({ path: "countryId", select: "name" })
     .then((contacts) => {
