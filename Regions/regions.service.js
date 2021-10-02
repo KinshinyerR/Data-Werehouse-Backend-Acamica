@@ -130,9 +130,9 @@ function allCities(req, res) {
 
 /* Update A REGION */
 async function updateRegion(req, res) {
-  const { regionId, name } = req.body;
+  const { id, name } = req.body;
   try {
-    const regionDB = await Region.findById(regionId);
+    const regionDB = await Region.findById(id);
     if (!regionDB) {
       throw new Error(`La region no se encuentra registrada`);
     }
@@ -147,9 +147,9 @@ async function updateRegion(req, res) {
 
 /* UPDATE A CONTRY IN THE REGION */
 async function updateCountry(req, res) {
-  const { countryId, name } = req.body;
+  const { id, name } = req.body;
   try {
-    const countryDB = await Country.findById(countryId);
+    const countryDB = await Country.findById(id);
     if (!countryDB) {
       throw new Error(`El país no se encuentra registrado`);
     }
@@ -164,9 +164,9 @@ async function updateCountry(req, res) {
 
 /* UPDATE A CITY IN THE COUNTRY */
 async function updateCity(req, res) {
-  const { cityId, name } = req.body;
+  const { id, name } = req.body;
   try {
-    const cityDB = await City.findById(cityId);
+    const cityDB = await City.findById(id);
     if (!cityDB) {
       throw new Error(`La ciudad no se encuentra registrada`);
     }
