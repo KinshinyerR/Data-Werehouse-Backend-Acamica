@@ -28,13 +28,9 @@ function login(req, res) {
       if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new Error("Usuario y/o Contraseña incorrecta");
       }
-      const token = jwt.sign(
-        { id: user.id, perfil: user.perfil },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "1d",
-        }
-      );
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
       res.send(token);
     })
     .catch((error) => {
@@ -103,4 +99,19 @@ function remove(req, res) {
     });
 }
 
-module.exports = { register, login, all, byEmail, update, remove };
+async function getProfile(req, res) {
+  console.log(req.user);
+  try {
+    const userDB = await User.findById(req.user._id);
+    if (!userDB) {
+      throw new Error(`El usuario con Id ${id} NO se encuentra registrado`);
+    }
+    userDB.password = undefined;
+    res.send(userDB);
+  } catch (error) {
+    console.log({ error });
+    res.status(400).send(error.message);
+  }
+}
+
+module.exports = { register, login, all, byEmail, update, remove, getProfile };

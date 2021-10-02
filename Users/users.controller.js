@@ -32,6 +32,9 @@ router.get(
   userService.byEmail
 );
 
+/* GET A USER BY ID */
+router.get("/profile", auth, userService.getProfile);
+
 /* UPDATE A USER BY EMAIL */
 router.put(
   "/update",
