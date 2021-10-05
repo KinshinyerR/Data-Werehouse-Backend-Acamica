@@ -181,15 +181,15 @@ async function updateCity(req, res) {
 
 /* DELETE A REGION */
 async function deleteRegion(req, res) {
-  const { regionId } = req.body;
+  const { id } = req.body;
   try {
-    const regionDB = await Region.findById(regionId);
+    const regionDB = await Region.findById(id);
 
     if (!regionDB) {
       throw new Error(`La region no se encuentra registrada`);
     }
 
-    regionDB.remove({ _id: regionId });
+    regionDB.remove({ _id: id });
     res.status(200).send("Region eliminada con exito");
   } catch (error) {
     console.log({ error });
@@ -199,15 +199,15 @@ async function deleteRegion(req, res) {
 
 /* DELETE A COUNTRY IN THE REGION */
 async function deleteCountry(req, res) {
-  const { countryId } = req.body;
+  const { id } = req.body;
   try {
-    const countryDB = await Country.findById(countryId);
+    const countryDB = await Country.findById(id);
 
     if (!countryDB) {
       throw new Error(`El País no se encuentra registrado`);
     }
 
-    countryDB.remove({ _id: countryId });
+    countryDB.remove({ _id: id });
     res.status(200).send("País eliminada con exito");
   } catch (error) {
     console.log({ error });
@@ -217,15 +217,15 @@ async function deleteCountry(req, res) {
 
 /* DELETE A CITY IN THE COUNTRY */
 async function deleteCity(req, res) {
-  const { cityId } = req.body;
+  const { id } = req.body;
   try {
-    const cityDB = await City.findById(cityId);
+    const cityDB = await City.findById(id);
 
     if (!cityDB) {
       throw new Error(`La Ciudad no se encuentra registrado`);
     }
 
-    cityDB.remove({ _id: cityId });
+    cityDB.remove({ _id: id });
     res.status(200).send("Ciudad eliminada con exito");
   } catch (error) {
     console.log({ error });
