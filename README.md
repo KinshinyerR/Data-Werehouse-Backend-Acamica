@@ -24,7 +24,7 @@ npm install
 ### DataBase
 1. Add env vars to the `.env` file
 ```
-MONGODB=mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.gl2kw.mongodb.net/DataWerehouse?retryWrites=true&w=majority
+MONGODB=mongodb://localhost/datawerehouse
 ```
 ### JWT
 Add the secret word to `.env` file
@@ -38,14 +38,14 @@ JWT_SECRET=123456
 ```bash
 npm run dev
 ```
-To use an admin example, you can sign in with the admin `perfil`:
+Para crear un usuario de `perfil : admin` debes de hacer una petición a http://localhost:4000/users/register/admin con los siguientes parametros (Postman):
 ```bash
-  {
+{
     "nombre": "user",
     "apellido": "user",
-    "email": "user@example.com",
+    "email": "admin@example.com",
     "perfil": "admin", 
-    "password": "user123"
+    "password": "admin123"
 }
 ```
-To access to restricted endpoint, use the `login` endpoint first, copy the JWT and click on Authorize option.
+Ahora ya puedes usar este usuario en la app del front-end https://github.com/KinshinyerR/Data-Werehouse-Frontend-Acamica.
