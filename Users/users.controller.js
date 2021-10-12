@@ -10,6 +10,13 @@ const router = express.Router();
 
 /* REGISTER A USER */
 router.post(
+  "/register/admin",
+  validate(userValidate.register),
+  userService.register
+);
+
+/* REGISTER A USER */
+router.post(
   "/register",
   validate(userValidate.register),
   auth,
