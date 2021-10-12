@@ -13,7 +13,6 @@
       - [You can run the api with command](#you-can-run-the-api-with-command)
 ## Modules
 - Express
-- swagger-ui-express
 - mongoose
 - morgan
 
@@ -25,7 +24,7 @@ npm install
 ### DataBase
 1. Add env vars to the `.env` file
 ```
-MONGODB=mongodb://127.0.0.1:27017/DelilahResto
+MONGODB=mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.gl2kw.mongodb.net/DataWerehouse?retryWrites=true&w=majority
 ```
 ### JWT
 Add the secret word to `.env` file
@@ -38,10 +37,6 @@ JWT_SECRET=123456
 #### You can run the api with command
 ```bash
 npm run dev
-```
-### Swagger
-```bash
-http://localhost:3000/api-docs/ 
 ```
 To use an admin example, you can sign in with the admin `role`:
 ```bash
