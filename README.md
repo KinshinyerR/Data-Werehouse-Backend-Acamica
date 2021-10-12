@@ -38,15 +38,14 @@ JWT_SECRET=123456
 ```bash
 npm run dev
 ```
-To use an admin example, you can sign in with the admin `role`:
+To use an admin example, you can sign in with the admin `perfil`:
 ```bash
-  "user": "username",
-  "name": "FirstName SecondName",
-  "surname": "LastName",
-  "email": "example@example.com",
-  "password": "password",
-  "phone": 123456789,
-  "address": "Medellin",
-  "role": "admin"
+  {
+    "nombre": "user",
+    "apellido": "user",
+    "email": "user@example.com",
+    "perfil": "admin", 
+    "password": "user123"
+}
 ```
 To access to restricted endpoint, use the `login` endpoint first, copy the JWT and click on Authorize option.
