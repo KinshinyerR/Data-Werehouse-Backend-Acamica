@@ -84,9 +84,11 @@ async function update(req, res) {
 }
 
 function remove(req, res) {
+  console.log(req.body);
   const { email } = req.body;
   User.findOne({ email: email })
     .then((user) => {
+      console.log(user);
       return user.remove({ email: email });
     })
     .then((userDeleted) => {
@@ -102,6 +104,9 @@ function remove(req, res) {
 async function getProfile(req, res) {
   console.log(req.user);
   try {
+    if (!req.user) {
+      return res.status(400).send("Usuario no encontrado");
+    }
     const userDB = await User.findById(req.user._id);
     if (!userDB) {
       throw new Error(`El usuario con Id ${id} NO se encuentra registrado`);
