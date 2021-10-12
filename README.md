@@ -11,7 +11,6 @@
   - [API](#api)
     - [Using local node server](#using-local-node-server)
       - [You can run the api with command](#you-can-run-the-api-with-command)
-    - [Swagger](#swagger)
 ## Modules
 - Express
 - swagger-ui-express
